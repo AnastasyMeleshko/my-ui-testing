@@ -1,15 +1,12 @@
-name: Tests
+name: Playwright Tests
 
 on:
   schedule:
-    - cron: '0 9 * * *'
-
+    - cron: '0 9 * * *' # каждый день в 9 утра
   pull_request:
     branches: [main, develop]
-
   push:
     branches: [main]
-
   workflow_dispatch:
     inputs:
       workers:
@@ -27,8 +24,8 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 90
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     strategy:
       fail-fast: false
@@ -49,7 +46,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm install  # обновит package-lock.json при необходимости
+          npm ci       # строгая установка зависимостей по lock-файлу
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium firefox

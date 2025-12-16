@@ -1,0 +1,126 @@
+# Test and report outputs
+allure-results/
+allure-report/
+test-results/
+test-report/
+playwright-report/
+test-reports/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Additional reports
+coverage/
+jest_html_reporters.html
+junit.xml
+jest_html_reporters/
+jest-html-reporters-attach/
+html-report/
+junit-results.xml
+test-results.json
+
+# Temporary or special files
+special_logs.txt
+TEST2.1.md
+
+# Calabash / Cucumber artifacts
+rerun/
+reports/
+screenshot*.png
+test-servers/
+
+# Ruby bundler directories
+.bundle
+vendor/
+
+# Linux system artifacts
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.icloud
+
+# Node.js related
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+report.*.json
+pids/
+*.pid
+*.seed
+*.pid.lock
+lib-cov/
+coverage/
+*.lcov
+.nyc_output/
+.grunt/
+bower_components/
+.lock-wscript
+build/Release/
+node_modules/
+jspm_packages/
+web_modules/
+*.tsbuildinfo
+.npm/
+.eslintcache
+.stylelintcache
+
+# JetBrains IDE files
+.idea/
+.idea_modules/
+*.iml
+*.ipr
+*.iws
+out/
+cmake-build-*/
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+.idea/httpRequests
+.idea/caches/
+.idea/sonarlint/
+
+# Windows specific files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+
+# Husky hooks
+.husky/

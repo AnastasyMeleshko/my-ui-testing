@@ -4,7 +4,7 @@ export default class BasicPage {
   }
 
   async navigateTo(url) {
-    await this.page.goto(url, { waitUntil: 'load', timeout: 50000 });
+    await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
   }
 
   async clickOnElementByLocator(locator) {

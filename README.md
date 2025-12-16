@@ -22,6 +22,8 @@ npx playwright install
 
 ## Running Tests
 
+### Note: Make sure you don't use VPN before running tests
+
 ### Run all tests
 ```bash
 npm test
@@ -80,6 +82,9 @@ npx playwright test tests/alertsPage.spec.js
 # With specific browser
 npx playwright test tests/practiceFormPage.spec.js --project=chromium-1920x1080
 ```
+
+Here are my results after running tests below:
+![img.png](img.png)
 
 ### View Reports
 ```bash

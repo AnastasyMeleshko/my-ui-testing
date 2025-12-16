@@ -13,7 +13,6 @@ test.describe('Alerts Page Suite', () => {
     pageAlerts = new AlertsPage(page);
     await pageAlerts.navigateTo('https://demoqa.com/alerts');
 
-    // дождаться появления всех кнопок
     await pageAlerts.alertBtn.waitFor({ state: 'visible' });
     await pageAlerts.timerAlertBtn.waitFor({ state: 'visible' });
     await pageAlerts.confirmBtn.waitFor({ state: 'visible' });

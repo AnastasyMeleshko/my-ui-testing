@@ -2,12 +2,12 @@ name: Playwright Tests
 
 on:
   schedule:
-    - cron: '0 9 * * *' # каждый день в 9 утра
+    - cron: '0 9 * * *' # runs every day at 9 AM
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop] # triggers on PRs to main or develop
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [main] # triggers on pushes to main
+  workflow_dispatch: # allows manual trigger with inputs
     inputs:
       workers:
         description: 'Number of workers'
@@ -24,34 +24,34 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: ubuntu-latest # use latest Ubuntu runner
+    timeout-minutes: 90    # job timeout
 
     strategy:
-      fail-fast: false
+      fail-fast: false # continue other matrix jobs even if one fails
       matrix:
-        browser: [chromium, firefox]
-        viewport:
+        browser: [chromium, firefox] # run tests on both browsers
+        viewport:                    # run tests with different viewport sizes
           - { width: 1920, height: 1080 }
           - { width: 1366, height: 768 }
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # fetch repository code
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '20' # use Node.js v20
+          cache: 'npm'       # cache npm dependencies
 
       - name: Install dependencies
         run: |
-          npm install  # обновит package-lock.json при необходимости
-          npm ci       # строгая установка зависимостей по lock-файлу
+          npm install  # updates package-lock.json if needed
+          npm ci       # strict install based on lock file
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium firefox
+        run: npx playwright install --with-deps chromium firefox # install required browsers
 
       - name: Run Playwright tests
         env:
@@ -62,18 +62,20 @@ jobs:
           CI: true
         run: |
           if [ -n "${{ github.event.inputs.project }}" ]; then
+            # run tests for a specific project if provided
             npx playwright test --project=${{ github.event.inputs.project }}
           else
+            # otherwise run tests for browser + viewport combination
             npx playwright test --project=${{ matrix.browser }}-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}
           fi
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() # upload even if tests fail
         with:
           name: playwright-report-${{ matrix.browser }}-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}
           path: playwright-report/
-          retention-days: 30
+          retention-days: 30 # keep report for 30 days
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -88,8 +90,8 @@ jobs:
 
       - name: Upload Screenshots on Failure
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() # only upload if tests fail
         with:
           name: screenshots-${{ matrix.browser }}-${{ matrix.viewport.width }}x${{ matrix.viewport.height }}
           path: test-results/**/*-failed-*.png
-          retention-days: 7
+          retention-days: 7 # keep screenshots for 7 days

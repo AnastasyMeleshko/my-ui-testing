@@ -1,49 +1,54 @@
-import { test, expect } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { AdBlocker } from '../src/utils';
 import { AlertsPage } from '../src/pageObjects';
 import Fakerator from 'fakerator';
 
 const faker = Fakerator('lt-LT');
 
-test.describe('Alerts Page Suite', () => {
-  let pageAlerts;
-
-  test.beforeEach(async ({ page }) => {
+// ----------------------------
+// Custom fixture for AlertsPage
+// ----------------------------
+const test = base.extend({
+  alertsPage: async ({ page }, use) => {
     await test.step('Block ads and navigate to Alerts page', async () => {
       await AdBlocker.blockAds(page);
-      pageAlerts = new AlertsPage(page);
-      await pageAlerts.navigateTo('https://demoqa.com/alerts');
-    });
+      const alertsPage = new AlertsPage(page);
+      await alertsPage.navigateTo('https://demoqa.com/alerts');
 
-    await test.step('Ensure all alert buttons are visible', async () => {
-      await pageAlerts.alertBtn.waitFor({ state: 'visible' });
-      await pageAlerts.timerAlertBtn.waitFor({ state: 'visible' });
-      await pageAlerts.confirmBtn.waitFor({ state: 'visible' });
-      await pageAlerts.promptBtn.waitFor({ state: 'visible' });
-    });
-  });
+      // Wait until all alert buttons are visible
+      await alertsPage.alertBtn.waitFor({ state: 'visible' });
+      await alertsPage.timerAlertBtn.waitFor({ state: 'visible' });
+      await alertsPage.confirmBtn.waitFor({ state: 'visible' });
+      await alertsPage.promptBtn.waitFor({ state: 'visible' });
 
-  test('Alert buttons should be displayed on page', async () => {
+      await use(alertsPage);
+    });
+  }
+});
+
+test.describe('Alerts Page Suite', () => {
+
+  test('Alert buttons should be displayed on page', async ({ alertsPage }) => {
     await test.step('Verify visibility of all alert buttons', async () => {
-      expect(await pageAlerts.isElementVisible(pageAlerts.alertBtn)).toBe(true);
-      expect(await pageAlerts.isElementVisible(pageAlerts.timerAlertBtn)).toBe(true);
-      expect(await pageAlerts.isElementVisible(pageAlerts.confirmBtn)).toBe(true);
-      expect(await pageAlerts.isElementVisible(pageAlerts.promptBtn)).toBe(true);
+      expect(await alertsPage.isElementVisible(alertsPage.alertBtn)).toBe(true);
+      expect(await alertsPage.isElementVisible(alertsPage.timerAlertBtn)).toBe(true);
+      expect(await alertsPage.isElementVisible(alertsPage.confirmBtn)).toBe(true);
+      expect(await alertsPage.isElementVisible(alertsPage.promptBtn)).toBe(true);
     });
   });
 
-  test('Simple alert shows correct message', async ({ page }) => {
+  test('Simple alert shows correct message', async ({ alertsPage, page }) => {
     await test.step('Trigger simple alert and validate message', async () => {
       page.once('dialog', async dlg => {
         expect(dlg.type()).toBe('alert');
         expect(dlg.message()).toBe('You clicked a button');
         await dlg.accept();
       });
-      await pageAlerts.triggerAlert();
+      await alertsPage.triggerAlert();
     });
   });
 
-  test('Timer alert pops up after delay', async ({ page }) => {
+  test('Timer alert pops up after delay', async ({ alertsPage, page }) => {
     await test.step('Trigger timer alert and validate delay', async () => {
       const startTime = Date.now();
       page.once('dialog', async dlg => {
@@ -53,43 +58,43 @@ test.describe('Alerts Page Suite', () => {
         expect(elapsed).toBeLessThanOrEqual(7000);
         await dlg.accept();
       });
-      await pageAlerts.triggerTimerAlert();
+      await alertsPage.triggerTimerAlert();
     });
   });
 
-  test('Confirm alert works with accept action', async ({ page }) => {
+  test('Confirm alert works with accept action', async ({ alertsPage, page }) => {
     await test.step('Trigger confirm alert and accept', async () => {
       page.once('dialog', async dlg => {
         expect(dlg.type()).toBe('confirm');
         expect(dlg.message()).toBe('Do you confirm action?');
         await dlg.accept();
       });
-      await pageAlerts.triggerConfirmAlert();
+      await alertsPage.triggerConfirmAlert();
     });
 
     await test.step('Validate confirm result text after accept', async () => {
-      const confirmText = await pageAlerts.readConfirmResult();
+      const confirmText = await alertsPage.readConfirmResult();
       expect(confirmText).toContain('You selected Ok');
     });
   });
 
-  test('Confirm alert works with dismiss action', async ({ page }) => {
+  test('Confirm alert works with dismiss action', async ({ alertsPage, page }) => {
     await test.step('Trigger confirm alert and dismiss', async () => {
       page.once('dialog', async dlg => {
         expect(dlg.type()).toBe('confirm');
         expect(dlg.message()).toBe('Do you confirm action?');
         await dlg.dismiss();
       });
-      await pageAlerts.triggerConfirmAlert();
+      await alertsPage.triggerConfirmAlert();
     });
 
     await test.step('Validate confirm result text after dismiss', async () => {
-      const confirmText = await pageAlerts.readConfirmResult();
+      const confirmText = await alertsPage.readConfirmResult();
       expect(confirmText).toContain('You selected Cancel');
     });
   });
 
-  test('Prompt alert accepts user input', async ({ page }) => {
+  test('Prompt alert accepts user input', async ({ alertsPage, page }) => {
     const fakeName = faker.names.name();
 
     await test.step('Trigger prompt alert and enter name', async () => {
@@ -98,28 +103,29 @@ test.describe('Alerts Page Suite', () => {
         expect(dlg.message()).toBe('Please enter your name');
         await dlg.accept(fakeName);
       });
-      await pageAlerts.triggerPromptAlert();
+      await alertsPage.triggerPromptAlert();
     });
 
     await test.step('Validate prompt result text with entered name', async () => {
-      const promptText = await pageAlerts.readPromptResult();
+      const promptText = await alertsPage.readPromptResult();
       expect(promptText).toContain(`You entered ${fakeName}`);
     });
   });
 
-  test('Prompt alert disappears when dismissed', async ({ page }) => {
+  test('Prompt alert disappears when dismissed', async ({ alertsPage, page }) => {
     await test.step('Trigger prompt alert and dismiss', async () => {
       page.once('dialog', async dlg => {
         expect(dlg.type()).toBe('prompt');
         expect(dlg.message()).toBe('Please enter your name');
         await dlg.dismiss();
       });
-      await pageAlerts.triggerPromptAlert();
+      await alertsPage.triggerPromptAlert();
     });
 
     await test.step('Validate prompt result is not visible after dismiss', async () => {
-      const isPromptResultVisible = await pageAlerts.isElementVisible(pageAlerts.promptResultField);
+      const isPromptResultVisible = await alertsPage.isElementVisible(alertsPage.promptResultField);
       expect(isPromptResultVisible).toBe(false);
     });
   });
+
 });

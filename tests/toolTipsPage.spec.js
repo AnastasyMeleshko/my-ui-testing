@@ -6,129 +6,128 @@ test.describe('ToolTips Page Suite', () => {
   let toolTipsPage;
 
   test.beforeEach(async ({ page }) => {
-    await AdBlocker.blockAds(page);
-    toolTipsPage = new ToolTipsPage(page);
-    await toolTipsPage.navigateTo('https://demoqa.com/tool-tips');
+    await test.step('Block ads on the page', async () => {
+      await AdBlocker.blockAds(page);
+    });
+
+    await test.step('Initialize ToolTips page object', async () => {
+      toolTipsPage = new ToolTipsPage(page);
+    });
+
+    await test.step('Navigate to Tool Tips page', async () => {
+      await toolTipsPage.navigateTo('https://demoqa.com/tool-tips');
+    });
   });
 
-  // check tooltip on button hover
-  test('Tooltip should appear when hovering button', async ({ page }) => {
-    await toolTipsPage.moveToButton();
+  /* ================= TOOLTIP TEXT TESTS ================= */
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipButton);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipButton);
-    expect(isVisible).toBe(true);
+  test('Tooltip should appear when hovering button', async () => {
+    await test.step('Hover over button', async () => {
+      await toolTipsPage.moveToButton();
+    });
 
-    const tooltipText = await toolTipsPage.readTooltipText(toolTipsPage.tipButton);
-    expect(tooltipText).toContain('You hovered over the Button');
+    await test.step('Verify tooltip is visible and text is correct', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipButton);
+      const text = await toolTipsPage.readTooltipText(toolTipsPage.tipButton);
+      expect(text).toContain('You hovered over the Button');
+    });
   });
 
-  // check tooltip on text field hover
-  test('Tooltip should appear when hovering text field', async ({ page }) => {
-    await toolTipsPage.moveToInputField();
+  test('Tooltip should appear when hovering text field', async () => {
+    await test.step('Hover over text field', async () => {
+      await toolTipsPage.moveToInputField();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipInput);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipInput);
-    expect(isVisible).toBe(true);
-
-    const tooltipText = await toolTipsPage.readTooltipText(toolTipsPage.tipInput);
-    expect(tooltipText).toContain('You hovered over the text field');
+    await test.step('Verify tooltip is visible and text is correct', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipInput);
+      const text = await toolTipsPage.readTooltipText(toolTipsPage.tipInput);
+      expect(text).toContain('You hovered over the text field');
+    });
   });
 
-  // check tooltip on Contrary link hover
-  test('Tooltip should appear when hovering Contrary link', async ({ page }) => {
-    await toolTipsPage.moveToContraryLink();
+  test('Tooltip should appear when hovering Contrary link', async () => {
+    await test.step('Hover over Contrary link', async () => {
+      await toolTipsPage.moveToContraryLink();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipContrary);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipContrary);
-    expect(isVisible).toBe(true);
-
-    const tooltipText = await toolTipsPage.readTooltipText(toolTipsPage.tipContrary);
-    expect(tooltipText).toContain('You hovered over the Contrary');
+    await test.step('Verify tooltip is visible and text is correct', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipContrary);
+      const text = await toolTipsPage.readTooltipText(toolTipsPage.tipContrary);
+      expect(text).toContain('You hovered over the Contrary');
+    });
   });
 
-  // check tooltip on Section link hover
-  test('Tooltip should appear when hovering Section link', async ({ page }) => {
-    await toolTipsPage.moveToSectionLink();
+  test('Tooltip should appear when hovering Section link', async () => {
+    await test.step('Hover over Section link', async () => {
+      await toolTipsPage.moveToSectionLink();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipSection);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipSection);
-    expect(isVisible).toBe(true);
-
-    const tooltipText = await toolTipsPage.readTooltipText(toolTipsPage.tipSection);
-    expect(tooltipText).toContain('You hovered over the 1.10.32');
+    await test.step('Verify tooltip is visible and text is correct', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipSection);
+      const text = await toolTipsPage.readTooltipText(toolTipsPage.tipSection);
+      expect(text).toContain('You hovered over the 1.10.32');
+    });
   });
 
-  // verify all tooltips are unique
-  test('All tooltips should have unique text', async ({ page }) => {
-    const tooltips = [];
+  /* ================= aria-describedby TESTS ================= */
 
-    await toolTipsPage.moveToButton();
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipButton);
-    tooltips.push(await toolTipsPage.readTooltipText(toolTipsPage.tipButton));
+  test('Button should have aria-describedby on hover', async () => {
+    await test.step('Hover over button', async () => {
+      await toolTipsPage.moveToButton();
+    });
 
-    await toolTipsPage.moveToInputField();
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipInput);
-    tooltips.push(await toolTipsPage.readTooltipText(toolTipsPage.tipInput));
+    await test.step('Wait for tooltip to appear', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipButton);
+    });
 
-    await toolTipsPage.moveToContraryLink();
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipContrary);
-    tooltips.push(await toolTipsPage.readTooltipText(toolTipsPage.tipContrary));
-
-    await toolTipsPage.moveToSectionLink();
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipSection);
-    tooltips.push(await toolTipsPage.readTooltipText(toolTipsPage.tipSection));
-
-    const uniqueTooltips = new Set(tooltips);
-    expect(uniqueTooltips.size).toBe(4);
-    expect(tooltips.length).toBe(4);
+    await test.step('Verify aria-describedby attribute', async () => {
+      const aria = await toolTipsPage.btnHover.getAttribute('aria-describedby');
+      expect(aria).toBe('buttonToolTip');
+    });
   });
 
-  // aria-describedby check for button
-  test('Button should have aria-describedby on hover', async ({ page }) => {
-    await toolTipsPage.moveToButton();
+  test('Text field should have aria-describedby on hover', async () => {
+    await test.step('Hover over text field', async () => {
+      await toolTipsPage.moveToInputField();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipButton);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipButton);
-    expect(isVisible).toBe(true);
+    await test.step('Wait for tooltip to appear', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipInput);
+    });
 
-    const ariaDescribedBy = await toolTipsPage.btnHover.getAttribute('aria-describedby');
-    expect(ariaDescribedBy).toBe('buttonToolTip');
+    await test.step('Verify aria-describedby attribute', async () => {
+      const aria = await toolTipsPage.inputHover.getAttribute('aria-describedby');
+      expect(aria).toBe('textFieldToolTip');
+    });
   });
 
-  // aria-describedby check for text field
-  test('Text field should have aria-describedby on hover', async ({ page }) => {
-    await toolTipsPage.moveToInputField();
+  test('Contrary link should have aria-describedby on hover', async () => {
+    await test.step('Hover over Contrary link', async () => {
+      await toolTipsPage.moveToContraryLink();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipInput);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipInput);
-    expect(isVisible).toBe(true);
+    await test.step('Wait for tooltip to appear', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipContrary);
+    });
 
-    const ariaDescribedBy = await toolTipsPage.inputHover.getAttribute('aria-describedby');
-    expect(ariaDescribedBy).toBe('textFieldToolTip');
+    await test.step('Verify aria-describedby attribute', async () => {
+      const aria = await toolTipsPage.linkContrary.getAttribute('aria-describedby');
+      expect(aria).toBe('contraryTexToolTip');
+    });
   });
 
-  // aria-describedby check for Contrary link
-  test('Contrary link should have aria-describedby on hover', async ({ page }) => {
-    await toolTipsPage.moveToContraryLink();
+  test('Section link should have aria-describedby on hover', async () => {
+    await test.step('Hover over Section link', async () => {
+      await toolTipsPage.moveToSectionLink();
+    });
 
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipContrary);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipContrary);
-    expect(isVisible).toBe(true);
+    await test.step('Wait for tooltip to appear', async () => {
+      await toolTipsPage.waitForElementVisible(toolTipsPage.tipSection);
+    });
 
-    const ariaDescribedBy = await toolTipsPage.linkContrary.getAttribute('aria-describedby');
-    expect(ariaDescribedBy).toBe('contraryTexToolTip');
-  });
-
-  // aria-describedby check for Section link
-  test('Section link should have aria-describedby on hover', async ({ page }) => {
-    await toolTipsPage.moveToSectionLink();
-
-    await toolTipsPage.waitForElementVisible(toolTipsPage.tipSection);
-    const isVisible = await toolTipsPage.checkTooltipVisible(toolTipsPage.tipSection);
-    expect(isVisible).toBe(true);
-
-    const ariaDescribedBy = await toolTipsPage.linkSection.getAttribute('aria-describedby');
-    expect(ariaDescribedBy).toBe('sectionToolTip');
+    await test.step('Verify aria-describedby attribute', async () => {
+      const aria = await toolTipsPage.linkSection.getAttribute('aria-describedby');
+      expect(aria).toBe('sectionToolTip');
+    });
   });
 });

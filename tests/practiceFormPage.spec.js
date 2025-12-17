@@ -8,140 +8,170 @@ test.describe('Practice Form Page Tests', () => {
   let dataGenerator;
 
   test.beforeEach(async ({ page }) => {
-    // Block ads before running tests
-    await AdBlocker.blockAds(page);
+    await test.step('Block ads before running tests', async () => {
+      await AdBlocker.blockAds(page);
+    });
 
-    // Initialize page object and data generator
-    formPage = new FormPage(page);
-    dataGenerator = new DataGenerator('en-US');
+    await test.step('Initialize page object and data generator', async () => {
+      formPage = new FormPage(page);
+      dataGenerator = new DataGenerator('en-US');
+    });
 
-    // Navigate to the practice form page
-    await page.goto('https://demoqa.com/automation-practice-form', {
-      waitUntil: 'domcontentloaded',
+    await test.step('Navigate to the practice form page', async () => {
+      await page.goto('https://demoqa.com/automation-practice-form', {
+        waitUntil: 'domcontentloaded',
+      });
     });
   });
 
   test.describe('Positive Scenarios', () => {
     test('Complete form submission with all fields', async ({ page }) => {
-      // Generate complete test data
-      const formData = dataGenerator.generateCompleteFormData();
-
-      // Path to test image file
-      const filePath = path.resolve(__dirname, '../assets/images/test.jpeg');
-
-      // Fill all form fields
-      await formPage.fillAll(formData);
-
-      // Upload picture
-      await page.setInputFiles('#uploadPicture', filePath);
-
-      // Submit the form
-      await formPage.submitForm();
-
-      // Wait until modal is visible
-      await formPage.waitForElementVisible(formPage.modalBox);
-      expect(await formPage.isModalShown()).toBe(true);
-
-      // Validate modal header text
-      const modalTitle = await formPage.getModalHeaderText();
-      expect(modalTitle).toContain('Thanks for submitting the form');
-
-      // Validate student name
-      const studentName = await formPage.getResult('Student Name');
-      expect(studentName).toContain(formData.firstName);
-      expect(studentName).toContain(formData.lastName);
-
-      // Validate email
-      const email = await formPage.getResult('Student Email');
-      expect(email).toBe(formData.email);
-
-      // Validate gender
-      const gender = await formPage.getResult('Gender');
-      expect(gender).toBe(formData.gender);
-
-      // Validate mobile number
-      const mobile = await formPage.getResult('Mobile');
-      expect(mobile).toBe(formData.mobile);
-
-      // Validate subjects
-      const subjects = await formPage.getResult('Subjects');
-      formData.subjects.forEach(subject => {
-        expect(subjects).toContain(subject);
+      const formData = await test.step('Generate complete test data', async () => {
+        return dataGenerator.generateCompleteFormData();
       });
 
-      // Validate hobbies
-      const hobbies = await formPage.getResult('Hobbies');
-      formData.hobbies.forEach(hobby => {
-        expect(hobbies).toContain(hobby);
+      const filePath = await test.step('Resolve path to test image file', async () => {
+        return path.resolve(__dirname, '../assets/images/test.jpeg');
       });
 
-      // Validate uploaded picture name
-      const pictureName = await formPage.getResult('Picture');
-      expect(pictureName).toContain('test.jpeg');
+      await test.step('Fill all form fields', async () => {
+        await formPage.fillAll(formData);
+      });
 
-      // Validate address
-      const address = await formPage.getResult('Address');
-      expect(address).toBe(formData.address);
+      await test.step('Upload picture', async () => {
+        await page.setInputFiles('#uploadPicture', filePath);
+      });
 
-      // Validate state and city
-      const stateCity = await formPage.getResult('State and City');
-      expect(stateCity).toContain(formData.state);
-      expect(stateCity).toContain(formData.city);
+      await test.step('Submit the form', async () => {
+        await formPage.submitForm();
+      });
+
+      await test.step('Wait until modal is visible', async () => {
+        await formPage.waitForElementVisible(formPage.modalBox);
+        expect(await formPage.isModalShown()).toBe(true);
+      });
+
+      await test.step('Validate modal header text', async () => {
+        const modalTitle = await formPage.getModalHeaderText();
+        expect(modalTitle).toContain('Thanks for submitting the form');
+      });
+
+      await test.step('Validate student name', async () => {
+        const studentName = await formPage.getResult('Student Name');
+        expect(studentName).toContain(formData.firstName);
+        expect(studentName).toContain(formData.lastName);
+      });
+
+      await test.step('Validate email', async () => {
+        const email = await formPage.getResult('Student Email');
+        expect(email).toBe(formData.email);
+      });
+
+      await test.step('Validate gender', async () => {
+        const gender = await formPage.getResult('Gender');
+        expect(gender).toBe(formData.gender);
+      });
+
+      await test.step('Validate mobile number', async () => {
+        const mobile = await formPage.getResult('Mobile');
+        expect(mobile).toBe(formData.mobile);
+      });
+
+      await test.step('Validate subjects', async () => {
+        const subjects = await formPage.getResult('Subjects');
+        formData.subjects.forEach(subject => {
+          expect(subjects).toContain(subject);
+        });
+      });
+
+      await test.step('Validate hobbies', async () => {
+        const hobbies = await formPage.getResult('Hobbies');
+        formData.hobbies.forEach(hobby => {
+          expect(hobbies).toContain(hobby);
+        });
+      });
+
+      await test.step('Validate uploaded picture name', async () => {
+        const pictureName = await formPage.getResult('Picture');
+        expect(pictureName).toContain('test.jpeg');
+      });
+
+      await test.step('Validate address', async () => {
+        const address = await formPage.getResult('Address');
+        expect(address).toBe(formData.address);
+      });
+
+      await test.step('Validate state and city', async () => {
+        const stateCity = await formPage.getResult('State and City');
+        expect(stateCity).toContain(formData.state);
+        expect(stateCity).toContain(formData.city);
+      });
     });
 
     test('Submission with only mandatory fields', async () => {
-      // Generate mandatory-only test data
-      const formData = dataGenerator.generateMandatoryFormData();
+      const formData = await test.step('Generate mandatory-only test data', async () => {
+        return dataGenerator.generateMandatoryFormData();
+      });
 
-      // Fill only required fields
-      await formPage.fillRequired(formData);
+      await test.step('Fill only required fields', async () => {
+        await formPage.fillRequired(formData);
+      });
 
-      // Submit the form
-      await formPage.submitForm();
+      await test.step('Submit the form', async () => {
+        await formPage.submitForm();
+      });
 
-      // Wait until modal is visible
-      await formPage.waitForElementVisible(formPage.modalBox);
-      expect(await formPage.isModalShown()).toBe(true);
+      await test.step('Wait until modal is visible', async () => {
+        await formPage.waitForElementVisible(formPage.modalBox);
+        expect(await formPage.isModalShown()).toBe(true);
+      });
 
-      // Validate modal header text
-      const modalTitle = await formPage.getModalHeaderText();
-      expect(modalTitle).toContain('Thanks for submitting the form');
+      await test.step('Validate modal header text', async () => {
+        const modalTitle = await formPage.getModalHeaderText();
+        expect(modalTitle).toContain('Thanks for submitting the form');
+      });
 
-      // Validate student name
-      const studentName = await formPage.getResult('Student Name');
-      expect(studentName).toContain(formData.firstName);
-      expect(studentName).toContain(formData.lastName);
+      await test.step('Validate student name', async () => {
+        const studentName = await formPage.getResult('Student Name');
+        expect(studentName).toContain(formData.firstName);
+        expect(studentName).toContain(formData.lastName);
+      });
 
-      // Validate gender
-      const gender = await formPage.getResult('Gender');
-      expect(gender).toBe(formData.gender);
+      await test.step('Validate gender', async () => {
+        const gender = await formPage.getResult('Gender');
+        expect(gender).toBe(formData.gender);
+      });
 
-      // Validate mobile number
-      const mobile = await formPage.getResult('Mobile');
-      expect(mobile).toBe(formData.mobile);
+      await test.step('Validate mobile number', async () => {
+        const mobile = await formPage.getResult('Mobile');
+        expect(mobile).toBe(formData.mobile);
+      });
     });
   });
 
-  // Run tests for each gender option
   const genders = new DataGenerator().genders;
   for (const gender of genders) {
     test(`Form submission with gender: ${gender}`, async () => {
-      // Generate minimal data with specific gender
-      const formData = {
-        firstName: dataGenerator.generateFirstName(),
-        lastName: dataGenerator.generateLastName(),
-        gender: gender,
-        mobile: dataGenerator.generateMobile(),
-      };
+      const formData = await test.step('Generate minimal data with specific gender', async () => {
+        return {
+          firstName: dataGenerator.generateFirstName(),
+          lastName: dataGenerator.generateLastName(),
+          gender: gender,
+          mobile: dataGenerator.generateMobile(),
+        };
+      });
 
-      // Fill required fields
-      await formPage.fillRequired(formData);
+      await test.step('Fill required fields', async () => {
+        await formPage.fillRequired(formData);
+      });
 
-      // Submit the form
-      await formPage.submitForm();
+      await test.step('Submit the form', async () => {
+        await formPage.submitForm();
+      });
 
-      // Validate that modal is shown
-      expect(await formPage.isModalShown()).toBe(true);
+      await test.step('Validate that modal is shown', async () => {
+        expect(await formPage.isModalShown()).toBe(true);
+      });
     });
   }
 });
